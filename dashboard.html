@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgendaSys — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0b0f1a;
+      --panel:   #111827;
+      --panel2:  #0f1c2e;
+      --border:  #1e2d40;
+      --accent:  #00d4aa;
+      --accent2: #0077ff;
+      --danger:  #ff4d6d;
+      --text:    #e8edf5;
+      --muted:   #6b7a99;
+      --radius:  12px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* NAVBAR */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px;
+      height: 64px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--accent); }
+
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+
+    #nomeUsuario {
+      font-size: .88rem;
+      color: var(--muted);
+    }
+
+    #badgeTipo {
+      font-size: .72rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .badge-admin   { background: rgba(0,212,170,.15); color: var(--accent); border: 1px solid rgba(0,212,170,.3); }
+    .badge-usuario { background: rgba(0,119,255,.15); color: #4da6ff; border: 1px solid rgba(0,119,255,.3); }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 7px 16px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: .85rem;
+      transition: all .2s;
+    }
+    .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* LAYOUT */
+    .main {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 0;
+      min-height: calc(100vh - 64px);
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 28px 24px;
+    }
+
+    .sidebar h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      font-size: .75rem;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    select, input[type="date"], input[type="time"] {
+      width: 100%;
+      background: #0d1422;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .93rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      color-scheme: dark;
+    }
+
+    select:focus, input[type="date"]:focus, input[type="time"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,212,170,.1);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      margin-top: 6px;
+    }
+    .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .alert-sm {
+      padding: 10px 14px;
+      border-radius: 9px;
+      font-size: .84rem;
+      margin-top: 14px;
+      display: none;
+    }
+    .alert-sm.error   { background: rgba(255,77,109,.1); border: 1px solid rgba(255,77,109,.3); color: #ff8099; display: block; }
+    .alert-sm.success { background: rgba(0,212,170,.08); border: 1px solid rgba(0,212,170,.25); color: var(--accent); display: block; }
+
+    /* Seção Admin */
+    #adminSection {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+
+    #adminSection h2 { margin-bottom: 16px; }
+
+    .input-row { display: flex; gap: 8px; }
+    .input-row input {
+      background: #0d1422;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem;
+      outline: none;
+      flex: 1;
+    }
+    .input-row input:focus { border-color: var(--accent); }
+
+    .btn-sm {
+      padding: 10px 16px;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: .82rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity .2s;
+    }
+    .btn-sm:hover { opacity: .8; }
+
+    /* CONTENT */
+    .content { padding: 28px 32px; }
+
+    .content-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .content-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .tab-pills {
+      display: flex; gap: 8px;
+    }
+
+    .pill {
+      padding: 7px 18px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: .83rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .pill.active {
+      background: rgba(0,212,170,.12);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Tabela */
+    .table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead { background: #0d1422; }
+
+    th {
+      padding: 14px 18px;
+      text-align: left;
+      font-size: .73rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    td {
+      padding: 14px 18px;
+      font-size: .9rem;
+      border-top: 1px solid var(--border);
+    }
+
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+    .badge-ativo     { background: rgba(0,212,170,.12); color: var(--accent); border: 1px solid rgba(0,212,170,.25); }
+    .badge-cancelado { background: rgba(255,77,109,.1); color: #ff8099; border: 1px solid rgba(255,77,109,.2); }
+
+    .btn-cancel {
+      background: none;
+      border: 1px solid rgba(255,77,109,.3);
+      color: #ff8099;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: .8rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-cancel:hover { background: rgba(255,77,109,.1); }
+
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty .icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Agenda<span>Sys</span></div>
+  <div class="nav-right">
+    <span id="nomeUsuario">Carregando...</span>
+    <span id="badgeTipo" class="badge-usuario">usuário</span>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- SIDEBAR: Formulário de Agendamento -->
+  <aside class="sidebar">
+    <h2>Novo Agendamento</h2>
+
+    <div class="form-group">
+      <label>Recurso</label>
+      <select id="recurso">
+        <option value="">Selecione um recurso...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Data</label>
+      <input type="date" id="data"/>
+    </div>
+
+    <div class="form-group">
+      <label>Horário</label>
+      <input type="time" id="horario"/>
+    </div>
+
+    <button class="btn-primary" onclick="agendar()">Confirmar Agendamento</button>
+
+    <div id="alertaForm" class="alert-sm"></div>
+
+    <!-- Painel Admin -->
+    <div id="adminSection">
+      <h2>⚙️ Painel Admin</h2>
+      <label>Adicionar Recurso</label>
+      <div class="input-row">
+        <input type="text" id="nomeRecurso" placeholder="Nome"/>
+        <input type="text" id="tipoRecurso" placeholder="Tipo"/>
+        <button class="btn-sm" onclick="adicionarRecurso()">+</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT: Lista de Agendamentos -->
+  <main class="content">
+    <div class="content-header">
+      <h1>Agendamentos</h1>
+      <div class="tab-pills">
+        <button class="pill active" onclick="filtrar('todos', this)">Todos</button>
+        <button class="pill" onclick="filtrar('ATIVO', this)">Ativos</button>
+        <button class="pill" onclick="filtrar('CANCELADO', this)">Cancelados</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Recurso</th>
+            <th>Usuário</th>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Status</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaBody">
+          <tr><td colspan="7" class="loading">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</div>
+
+<script>
+  let todosAgendamentos = [];
+  let filtroAtual = 'todos';
+
+  // Inicializa
+  window.onload = async () => {
+    await verificarSessao();
+    await carregarRecursos();
+    await carregarAgendamentos();
+    // Define data mínima como hoje
+    document.getElementById('data').min = new Date().toISOString().split('T')[0];
+  };
+
+  async function verificarSessao() {
+    // Verifica via tentativa de carregar agendamentos
+    // Se não estiver logado, o PHP retorna 401
+  }
+
+  async function carregarRecursos() {
+    try {
+      const res = await fetch('api/recursos.php');
+      if (res.status === 401) { window.location.href = 'login.html'; return; }
+      const recursos = await res.json();
+
+      // Atualiza select
+      const sel = document.getElementById('recurso');
+      sel.innerHTML = '<option value="">Selecione um recurso...</option>';
+      recursos.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.textContent = `${r.nome} (${r.tipo})`;
+        sel.appendChild(opt);
+      });
+    } catch (e) {
+      console.error('Erro ao carregar recursos:', e);
+    }
+  }
+
+  async function carregarAgendamentos() {
+    try {
+      const res = await fetch('api/agendamentos.php');
+      if (res.status === 401) { window.location.href = 'login.html'; return; }
+
+      const dados = await res.json();
+
+      // Pega info do usuário pelo header de sessão
+      // Detecta se é admin pela presença de vários usuários distintos
+      if (dados.length > 0) {
+        const nomes = [...new Set(dados.map(a => a.usuario_nome))];
+        if (nomes.length > 1) {
+          // É admin, vê todos
+          document.getElementById('badgeTipo').textContent = 'admin';
+          document.getElementById('badgeTipo').className = 'badge-admin';
+          document.getElementById('adminSection').style.display = 'block';
+        } else {
+          document.getElementById('nomeUsuario').textContent = nomes[0] || '';
+        }
+      }
+
+      todosAgendamentos = dados;
+      renderTabela(todosAgendamentos);
+    } catch (e) {
+      console.error('Erro ao carregar agendamentos:', e);
+    }
+  }
+
+  function filtrar(status, btn) {
+    filtroAtual = status;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+
+    const filtrado = status === 'todos'
+      ? todosAgendamentos
+      : todosAgendamentos.filter(a => a.status === status);
+
+    renderTabela(filtrado);
+  }
+
+  function renderTabela(agendamentos) {
+    const tbody = document.getElementById('tabelaBody');
+
+    if (!agendamentos.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty">
+        <div class="icon">📅</div>
+        Nenhum agendamento encontrado.
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = agendamentos.map(a => {
+      const dataFormatada = new Date(a.data + 'T00:00:00').toLocaleDateString('pt-BR');
+      const badgeClass = a.status === 'ATIVO' ? 'badge-ativo' : 'badge-cancelado';
+      const btnCancelar = a.status === 'ATIVO'
+        ? `<button class="btn-cancel" onclick="cancelar(${a.id})">Cancelar</button>`
+        : '—';
+
+      return `
+        <tr>
+          <td><span style="color:var(--muted)">#${a.id}</span></td>
+          <td>
+            <strong>${a.recurso_nome}</strong><br/>
+            <small style="color:var(--muted)">${a.recurso_tipo}</small>
+          </td>
+          <td>${a.usuario_nome}</td>
+          <td>${dataFormatada}</td>
+          <td>${a.horario}</td>
+          <td><span class="badge ${badgeClass}">${a.status}</span></td>
+          <td>${btnCancelar}</td>
+        </tr>`;
+    }).join('');
+  }
+
+  async function agendar() {
+    const recurso_id = document.getElementById('recurso').value;
+    const data       = document.getElementById('data').value;
+    const horario    = document.getElementById('horario').value;
+    const alerta     = document.getElementById('alertaForm');
+
+    alerta.className = 'alert-sm';
+    alerta.textContent = '';
+
+    if (!recurso_id || !data || !horario) {
+      mostrarAlertaForm('Preencha todos os campos.', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('api/agendamentos.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recurso_id: parseInt(recurso_id), data, horario })
+      });
+
+      const data2 = await res.json();
+
+      if (res.ok && data2.sucesso) {
+        mostrarAlertaForm('Agendamento realizado com sucesso!', 'success');
+        await carregarAgendamentos();
+        document.getElementById('recurso').value = '';
+        document.getElementById('data').value = '';
+        document.getElementById('horario').value = '';
+      } else {
+        mostrarAlertaForm(data2.erro || 'Erro ao agendar.', 'error');
+      }
+    } catch (e) {
+      mostrarAlertaForm('Erro de conexão.', 'error');
+    }
+  }
+
+  async function cancelar(id) {
+    if (!confirm('Deseja cancelar este agendamento?')) return;
+
+    try {
+      const res = await fetch(`api/agendamentos.php?id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+
+      if (res.ok && data.sucesso) {
+        await carregarAgendamentos();
+      } else {
+        alert(data.erro || 'Erro ao cancelar.');
+      }
+    } catch (e) {
+      alert('Erro de conexão.');
+    }
+  }
+
+  async function adicionarRecurso() {
+    const nome = document.getElementById('nomeRecurso').value.trim();
+    const tipo = document.getElementById('tipoRecurso').value.trim();
+
+    if (!nome || !tipo) { alert('Preencha nome e tipo do recurso.'); return; }
+
+    try {
+      const res = await fetch('api/recursos.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, tipo })
+      });
+      const data = await res.json();
+      if (res.ok && data.sucesso) {
+        document.getElementById('nomeRecurso').value = '';
+        document.getElementById('tipoRecurso').value = '';
+        await carregarRecursos();
+        mostrarAlertaForm('Recurso adicionado!', 'success');
+      } else {
+        alert(data.erro || 'Erro ao adicionar recurso.');
+      }
+    } catch (e) {
+      alert('Erro de conexão.');
+    }
+  }
+
+  async function logout() {
+    await fetch('api/logout.php', { method: 'POST' });
+    window.location.href = 'login.html';
+  }
+
+  function mostrarAlertaForm(msg, tipo) {
+    const alerta = document.getElementById('alertaForm');
+    alerta.textContent = msg;
+    alerta.className = 'alert-sm ' + tipo;
+    setTimeout(() => { alerta.className = 'alert-sm'; alerta.textContent = ''; }, 4000);
+  }
+</script>
+</body>
+</html>
